@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Naran Farm – Nani Daman</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,700&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --forest:       #0d2b1a;
+    --forest-mid:   #1a4a2e;
+    --forest-light: #2d6a4f;
+    --sage:         #52b788;
+    --sage-light:   #95d5b2;
+    --moss:         #40916c;
+    --earth:        #8b5e3c;
+    --earth-light:  #c8a882;
+    --cream:        #f5f0e8;
+    --cream-warm:   #fdf6ec;
+    --straw:        #d4a843;
+    --glass-bg:     rgba(255,255,255,0.06);
+    --glass-border: rgba(149,213,178,0.22);
+    --glass-hover:  rgba(82,183,136,0.12);
+    --text-light:   #eef7f2;
+    --text-muted:   rgba(220,242,230,0.62);
+  }
+
+  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior:smooth; }
+
+  body {
+    font-family:'Jost', sans-serif;
+    background: var(--forest);
+    color: var(--text-light);
+    overflow-x:hidden;
+  }
+
+  /* ATMOSPHERIC BACKGROUND */
+  body::before {
+    content:'';
+    position:fixed; inset:0; z-index:0; pointer-events:none;
+    background:
+      radial-gradient(ellipse 65% 55% at 15% 25%, rgba(26,74,46,0.8) 0%, transparent 65%),
+      radial-gradient(ellipse 55% 45% at 85% 75%, rgba(45,106,79,0.5) 0%, transparent 65%),
+      radial-gradient(ellipse 40% 35% at 55% 5%,  rgba(82,183,136,0.1) 0%, transparent 55%),
+      radial-gradient(ellipse 50% 40% at 5% 80%,  rgba(13,43,26,0.9) 0%, transparent 60%);
+  }
+
+  /* GRAIN */
+  body::after {
+    content:'';
+    position:fixed; inset:0; z-index:0; pointer-events:none;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 300 300' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)' opacity='0.035'/%3E%3C/svg%3E");
+    opacity:0.6;
+  }
+
+  section, nav, footer, .photo-strip, .amenities-row, .menu-section { position:relative; z-index:1; }
+
+  /* ========== NAVBAR ========== */
+  nav {
+    position:fixed; top:0; left:0; right:0; z-index:200;
+    padding:14px 44px;
+    display:flex; align-items:center; justify-content:space-between;
+    background: rgba(13,43,26,0.6);
+    backdrop-filter:blur(22px) saturate(1.5);
+    -webkit-backdrop-filter:blur(22px) saturate(1.5);
+    border-bottom:1px solid rgba(82,183,136,0.18);
+    transition: transform 0.4s cubic-bezier(.4,0,.2,1), opacity 0.4s ease, background 0.3s ease;
+  }
+  nav.hidden {
+    transform: translateY(-100%);
+    opacity:0;
+    pointer-events:none;
+  }
+  nav.scrolled {
+    background: rgba(8,28,16,0.88);
+    box-shadow: 0 4px 40px rgba(0,0,0,0.5);
+  }
+
+  .nav-logo {
+    font-family:'Cormorant Garamond', serif;
+    font-size:1.55rem; font-weight:700;
+    color:var(--sage-light);
+    text-decoration:none;
+    display:flex; align-items:center; gap:10px;
+    letter-spacing:0.02em;
+  }
+
+  .nav-links { display:flex; gap:30px; list-style:none; }
+  .nav-links a {
+    color:var(--text-muted); text-decoration:none;
+    font-size:0.88rem; font-weight:500; letter-spacing:0.05em;
+    text-transform:uppercase;
+    transition:color 0.25s;
+    position:relative;
+  }
+  .nav-links a::after {
+    content:''; position:absolute; bottom:-4px; left:0; right:0;
+    height:1.5px; background:var(--sage);
+    transform:scaleX(0); transform-origin:left;
+    transition:transform 0.3s cubic-bezier(.4,0,.2,1);
+  }
+  .nav-links a:hover { color:var(--sage-light); }
+  .nav-links a:hover::after { transform:scaleX(1); }
+
+  .nav-cta {
+    background:linear-gradient(135deg,var(--moss),var(--forest-light));
+    color:var(--cream-warm); padding:10px 26px; border-radius:50px;
+    font-weight:600; font-size:0.88rem; letter-spacing:0.05em;
+    text-decoration:none; text-transform:uppercase;
+    border:1px solid rgba(82,183,136,0.35);
+    transition:all 0.3s ease;
+    box-shadow:0 0 20px rgba(64,145,108,0.3);
+  }
+  .nav-cta:hover {
+    background:linear-gradient(135deg,var(--sage),var(--moss));
+    transform:translateY(-2px);
+    box-shadow:0 6px 30px rgba(82,183,136,0.4);
+  }
+
+  /* ========== HERO ========== */
+  #hero {
+    min-height:100vh;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center; padding:140px 40px 100px;
+    overflow:hidden;
+  }
+
+  .leaf-bg {
+    position:absolute; inset:0; overflow:hidden; pointer-events:none; z-index:0;
+  }
+  .leaf {
+    position:absolute; opacity:0.12;
+    animation:floatLeaf linear infinite;
+  }
+  @keyframes floatLeaf {
+    0%   { transform:translateY(110vh) rotate(0deg); opacity:0; }
+    10%  { opacity:0.12; }
+    90%  { opacity:0.07; }
+    100% { transform:translateY(-10vh) rotate(360deg); opacity:0; }
+  }
+
+  .hero-badge {
+    position:relative; z-index:2;
+    display:inline-flex; align-items:center; gap:8px;
+    background:rgba(82,183,136,0.1);
+    border:1px solid rgba(82,183,136,0.3);
+    backdrop-filter:blur(12px);
+    padding:8px 22px; border-radius:50px;
+    font-size:0.78rem; color:var(--sage-light); font-weight:600;
+    letter-spacing:0.12em; text-transform:uppercase;
+    margin-bottom:26px;
+    animation:fadeUp 0.8s ease both;
+  }
+
+  .hero-title {
+    position:relative; z-index:2;
+    font-family:'Cormorant Garamond', serif;
+    font-size:clamp(3.5rem,9vw,8rem);
+    font-weight:700; line-height:1.0;
+    color:var(--cream-warm);
+    animation:fadeUp 0.9s 0.1s ease both;
+    text-shadow:0 4px 40px rgba(0,0,0,0.4);
+  }
+  .hero-title em {
+    font-style:italic; color:var(--sage-light);
+    text-shadow:0 0 50px rgba(149,213,178,0.4);
+  }
+
+  .hero-divider {
+    position:relative; z-index:2;
+    display:flex; align-items:center; gap:16px;
+    margin:18px auto;
+    animation:fadeUp 1s 0.2s ease both;
+    width:fit-content;
+  }
+  .hero-divider-line { width:60px; height:1px; background:linear-gradient(90deg,transparent,var(--sage)); }
+  .hero-divider-line.r { background:linear-gradient(90deg,var(--sage),transparent); }
+
+  .hero-sub {
+    position:relative; z-index:2;
+    max-width:560px; font-size:1.05rem;
+    color:var(--text-muted); line-height:1.75;
+    animation:fadeUp 1s 0.25s ease both;
+  }
+
+  .hero-btns {
+    position:relative; z-index:2;
+    margin-top:42px; display:flex; gap:16px; flex-wrap:wrap; justify-content:center;
+    animation:fadeUp 1s 0.35s ease both;
+  }
+
+  /* ========== BUTTONS ========== */
+  .btn-glass {
+    padding:14px 34px; border-radius:50px;
+    background:var(--glass-bg);
+    border:1.5px solid var(--glass-border);
+    backdrop-filter:blur(14px);
+    color:var(--text-light); font-weight:600; font-size:0.95rem;
+    cursor:pointer; text-decoration:none;
+    transition:all 0.3s cubic-bezier(.4,0,.2,1);
+    position:relative; overflow:hidden;
+    font-family:'Jost',sans-serif;
+  }
+  .btn-glass::before {
+    content:''; position:absolute; inset:0;
+    background:radial-gradient(circle at var(--mx,50%) var(--my,50%), rgba(82,183,136,0.2), transparent 60%);
+    opacity:0; transition:opacity 0.3s; pointer-events:none;
+  }
+  .btn-glass:hover { border-color:var(--sage); transform:translateY(-3px); box-shadow:0 8px 30px rgba(82,183,136,0.2); }
+  .btn-glass:hover::before { opacity:1; }
+
+  .btn-green {
+    padding:14px 34px; border-radius:50px;
+    background:linear-gradient(135deg, var(--moss), var(--forest-light));
+    border:1px solid rgba(82,183,136,0.4);
+    color:var(--cream-warm); font-weight:700; font-size:0.95rem;
+    cursor:pointer; text-decoration:none;
+    transition:all 0.3s ease;
+    box-shadow:0 4px 25px rgba(64,145,108,0.4);
+    font-family:'Jost',sans-serif;
+  }
+  .btn-green:hover { transform:translateY(-3px); box-shadow:0 10px 40px rgba(82,183,136,0.5); background:linear-gradient(135deg,var(--sage),var(--moss)); }
+
+  /* ========== PHOTO STRIP ========== */
+  .photo-strip {
+    display:grid; grid-template-columns:1fr 1fr;
+    gap:18px; padding:0 44px 90px;
+    animation:fadeUp 1s 0.4s ease both;
+  }
+  .photo-card {
+    aspect-ratio:16/9; border-radius:22px; overflow:hidden;
+    position:relative; cursor:pointer;
+    border:1.5px solid rgba(82,183,136,0.15);
+    box-shadow:0 4px 35px rgba(0,0,0,0.5);
+    transition:all 0.45s cubic-bezier(.4,0,.2,1);
+  }
+  .photo-card::after {
+    content:''; position:absolute; inset:0;
+    background:linear-gradient(180deg, transparent 35%, rgba(13,43,26,0.75) 100%);
+    transition:opacity 0.3s;
+  }
+  .photo-card:hover {
+    transform:translateY(-7px) scale(1.01);
+    border-color:rgba(82,183,136,0.5);
+    box-shadow:0 20px 55px rgba(0,0,0,0.4), 0 0 30px rgba(82,183,136,0.15);
+  }
+  .photo-card img { width:100%; height:100%; object-fit:cover; transition:transform 0.6s ease; }
+  .photo-card:hover img { transform:scale(1.07); }
+  .photo-label {
+    position:absolute; bottom:14px; left:18px; z-index:2;
+    font-size:0.78rem; font-weight:600; color:var(--sage-light);
+    letter-spacing:0.1em; text-transform:uppercase;
+  }
+  .photo-placeholder {
+    width:100%; height:100%;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    background:linear-gradient(135deg, rgba(26,74,46,0.6), rgba(13,43,26,0.9));
+    gap:10px;
+  }
+  .photo-placeholder p { font-size:0.78rem; opacity:0.45; text-align:center; padding:0 12px; color:var(--sage-light); }
+
+  /* ========== AMENITIES ========== */
+  .amenities-row {
+    display:flex; flex-wrap:wrap; gap:14px;
+    padding:40px 44px;
+    background:rgba(255,255,255,0.03);
+    border-top:1px solid rgba(82,183,136,0.1);
+    border-bottom:1px solid rgba(82,183,136,0.1);
+  }
+  .amenity-pill {
+    display:flex; align-items:center; gap:10px;
+    background:var(--glass-bg); border:1px solid var(--glass-border);
+    backdrop-filter:blur(12px);
+    padding:12px 22px; border-radius:50px;
+    font-size:0.88rem; font-weight:500; color:var(--text-light);
+    transition:all 0.3s ease; cursor:default;
+  }
+  .amenity-pill:hover {
+    border-color:var(--sage);
+    background:rgba(82,183,136,0.12);
+    transform:translateY(-3px);
+    box-shadow:0 8px 25px rgba(82,183,136,0.15);
+    color:var(--sage-light);
+  }
+  .amenity-pill span:first-child { font-size:1.25rem; }
+
+  /* ========== SECTION COMMON ========== */
+  .section-wrap { padding:90px 44px; }
+  .section-eyebrow {
+    font-size:0.75rem; letter-spacing:0.14em; text-transform:uppercase;
+    color:var(--sage); font-weight:600; margin-bottom:10px;
+    display:flex; align-items:center; gap:12px;
+  }
+  .section-eyebrow::before {
+    content:''; display:block; width:28px; height:1.5px; background:var(--sage);
+  }
+  .section-title {
+    font-family:'Cormorant Garamond', serif;
+    font-size:clamp(2rem,4vw,3.2rem); font-weight:700;
+    color:var(--cream-warm); line-height:1.15; margin-bottom:12px;
+  }
+  .section-title em { font-style:italic; color:var(--sage-light); }
+  .section-sub { color:var(--text-muted); font-size:1rem; max-width:500px; line-height:1.7; margin-bottom:50px; }
+
+  /* ========== GLASS CARDS ========== */
+  .cards-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:22px; }
+  .glass-card {
+    background:var(--glass-bg);
+    border:1.5px solid var(--glass-border);
+    backdrop-filter:blur(18px) saturate(1.3);
+    -webkit-backdrop-filter:blur(18px) saturate(1.3);
+    border-radius:24px; padding:36px 28px;
+    transition:all 0.38s cubic-bezier(.4,0,.2,1);
+    position:relative; overflow:hidden;
+  }
+  .glass-card::before {
+    content:''; position:absolute; inset:0; pointer-events:none;
+    background:radial-gradient(circle at var(--mx,50%) var(--my,50%), rgba(82,183,136,0.12), transparent 65%);
+    opacity:0; transition:opacity 0.3s;
+  }
+  .glass-card:hover {
+    border-color:rgba(82,183,136,0.45);
+    transform:translateY(-7px);
+    box-shadow:0 20px 55px rgba(0,0,0,0.3), 0 0 30px rgba(82,183,136,0.1);
+    background:rgba(255,255,255,0.09);
+  }
+  .glass-card:hover::before { opacity:1; }
+  .glass-card:active { transform:scale(0.98) translateY(-3px); }
+
+  .card-icon { font-size:2.5rem; margin-bottom:16px; display:block; }
+  .card-title {
+    font-family:'Cormorant Garamond', serif;
+    font-size:1.3rem; font-weight:700; color:var(--sage-light); margin-bottom:10px;
+  }
+  .card-body { font-size:0.9rem; color:var(--text-muted); line-height:1.75; }
+
+  /* ========== FOOD MENU ========== */
+  .menu-section {
+    padding:90px 44px;
+    display:flex; flex-direction:column; align-items:center; text-align:center;
+    background:rgba(26,74,46,0.15);
+  }
+  .menu-btn {
+    margin-top:32px;
+    display:inline-flex; align-items:center; gap:12px;
+    padding:18px 46px; border-radius:50px;
+    background:linear-gradient(135deg, rgba(82,183,136,0.14), rgba(64,145,108,0.14));
+    border:2px solid var(--sage);
+    backdrop-filter:blur(16px);
+    color:var(--sage-light); font-size:1.05rem; font-weight:700;
+    cursor:pointer; text-decoration:none;
+    transition:all 0.35s ease;
+    box-shadow:0 0 30px rgba(82,183,136,0.15);
+    letter-spacing:0.05em; font-family:'Jost',sans-serif;
+  }
+  .menu-btn:hover {
+    background:linear-gradient(135deg, rgba(82,183,136,0.28), rgba(64,145,108,0.25));
+    box-shadow:0 0 55px rgba(82,183,136,0.35);
+    transform:translateY(-4px) scale(1.02);
+  }
+
+  /* ========== MODAL ========== */
+  .modal-overlay {
+    position:fixed; inset:0; z-index:999;
+    background:rgba(5,18,10,0.88);
+    backdrop-filter:blur(12px);
+    display:flex; align-items:center; justify-content:center;
+    opacity:0; pointer-events:none;
+    transition:opacity 0.35s ease;
+  }
+  .modal-overlay.open { opacity:1; pointer-events:all; }
+  .modal-box {
+    background:rgba(13,43,26,0.96);
+    border:1.5px solid rgba(82,183,136,0.3);
+    backdrop-filter:blur(24px);
+    border-radius:28px; padding:44px;
+    max-width:860px; width:95%;
+    max-height:92vh; overflow-y:auto;
+    transform:scale(0.9) translateY(20px);
+    transition:transform 0.35s cubic-bezier(.4,0,.2,1);
+    position:relative;
+  }
+  .modal-overlay.open .modal-box { transform:scale(1) translateY(0); }
+  .modal-close {
+    position:absolute; top:18px; right:20px;
+    background:rgba(82,183,136,0.12); border:1px solid rgba(82,183,136,0.3);
+    color:var(--sage-light); border-radius:50%; width:38px; height:38px;
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer; font-size:1.1rem; transition:all 0.2s;
+  }
+  .modal-close:hover { background:var(--moss); color:var(--cream-warm); }
+  .modal-title {
+    font-family:'Cormorant Garamond',serif; font-size:1.8rem; font-weight:700;
+    color:var(--sage-light); margin-bottom:28px; text-align:center;
+  }
+  .menu-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  .menu-item {
+    background:rgba(255,255,255,0.04); border:1px solid rgba(82,183,136,0.14);
+    border-radius:16px; padding:16px 18px; transition:all 0.25s;
+  }
+  .menu-item:hover { border-color:rgba(82,183,136,0.4); background:rgba(82,183,136,0.08); }
+  .menu-cat { font-size:0.7rem; color:var(--sage); font-weight:700; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:5px; }
+  .menu-name { font-size:0.95rem; color:var(--text-light); font-weight:500; }
+  .menu-price { font-size:0.82rem; color:var(--text-muted); margin-top:3px; }
+
+  /* ========== MAP ========== */
+  .map-section { padding:90px 44px; }
+  .map-frame {
+    border-radius:24px; overflow:hidden;
+    border:1.5px solid rgba(82,183,136,0.22);
+    box-shadow:0 0 60px rgba(0,0,0,0.45);
+    height:430px;
+  }
+  .map-frame iframe { width:100%; height:100%; border:none; }
+
+  /* ========== CONTACT ========== */
+  #contact { padding:90px 44px; }
+  .contact-grid { display:grid; grid-template-columns:1fr 1fr; gap:32px; }
+  .contact-info { display:flex; flex-direction:column; gap:18px; }
+  .contact-row {
+    display:flex; align-items:flex-start; gap:16px;
+    background:var(--glass-bg); border:1.5px solid var(--glass-border);
+    backdrop-filter:blur(12px);
+    border-radius:20px; padding:20px 24px;
+    transition:all 0.3s ease;
+  }
+  .contact-row:hover {
+    border-color:rgba(82,183,136,0.45);
+    transform:translateX(6px);
+    box-shadow:0 8px 30px rgba(82,183,136,0.1);
+  }
+  .contact-icon {
+    font-size:1.4rem; min-width:42px; height:42px;
+    background:rgba(82,183,136,0.12); border-radius:12px;
+    display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  }
+  .contact-label { font-weight:700; font-size:0.92rem; color:var(--sage-light); margin-bottom:3px; }
+  .contact-detail { font-size:0.86rem; color:var(--text-muted); line-height:1.65; }
+
+  .phone-box {
+    background:linear-gradient(135deg,rgba(26,74,46,0.4),rgba(64,145,108,0.12));
+    border:1.5px solid rgba(82,183,136,0.28);
+    backdrop-filter:blur(18px);
+    border-radius:24px; padding:38px;
+    display:flex; flex-direction:column; gap:18px;
+  }
+  .phone-title {
+    font-family:'Cormorant Garamond',serif; font-size:1.5rem; font-weight:700; color:var(--sage-light);
+  }
+  .phone-number {
+    display:flex; align-items:center; gap:14px;
+    padding:16px 20px; border-radius:14px;
+    background:rgba(255,255,255,0.05); border:1px solid rgba(82,183,136,0.2);
+    font-size:1.1rem; font-weight:700; color:var(--text-light);
+    cursor:pointer; text-decoration:none;
+    transition:all 0.3s;
+  }
+  .phone-number:hover {
+    border-color:var(--sage);
+    background:rgba(82,183,136,0.14);
+    transform:translateX(6px);
+    box-shadow:0 6px 25px rgba(82,183,136,0.15);
+    color:var(--sage-light);
+  }
+  .phone-dot { width:8px; height:8px; border-radius:50%; background:var(--sage); flex-shrink:0; }
+
+  /* ========== FOOTER ========== */
+  footer {
+    padding:38px 44px;
+    border-top:1px solid rgba(82,183,136,0.12);
+    display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:20px;
+    background:rgba(5,18,10,0.5);
+    backdrop-filter:blur(10px);
+  }
+  .footer-logo { font-family:'Cormorant Garamond',serif; font-size:1.3rem; font-weight:700; color:var(--sage-light); }
+  .footer-links { display:flex; gap:24px; flex-wrap:wrap; }
+  .footer-links a { color:var(--text-muted); text-decoration:none; font-size:0.83rem; transition:color 0.2s; }
+  .footer-links a:hover { color:var(--sage-light); }
+  .footer-copy { font-size:0.78rem; color:var(--text-muted); }
+
+  /* ========== ANIMATIONS ========== */
+  @keyframes fadeUp {
+    from { opacity:0; transform:translateY(32px); }
+    to   { opacity:1; transform:translateY(0); }
+  }
+  .reveal { opacity:0; transform:translateY(40px); transition:opacity 0.75s ease, transform 0.75s ease; }
+  .reveal.visible { opacity:1; transform:translateY(0); }
+
+  .ripple-container { position:relative; overflow:hidden; }
+  .ripple {
+    position:absolute; border-radius:50%;
+    background:rgba(82,183,136,0.25);
+    width:10px; height:10px;
+    transform:scale(0);
+    animation:rippleAnim 0.65s linear;
+    pointer-events:none;
+  }
+  @keyframes rippleAnim { to { transform:scale(40); opacity:0; } }
+
+  /* ========== RESPONSIVE ========== */
+  @media(max-width:768px) {
+    nav { padding:14px 20px; }
+    .nav-links { display:none; }
+    .photo-strip { grid-template-columns:1fr; padding:0 20px 60px; }
+    .section-wrap, #contact, .menu-section, .map-section { padding:60px 20px; }
+    .contact-grid { grid-template-columns:1fr; }
+    .amenities-row { padding:24px 20px; }
+    footer { padding:28px 20px; flex-direction:column; align-items:flex-start; }
+    .menu-grid { grid-template-columns:1fr; }
+  }
+
+  ::-webkit-scrollbar { width:5px; }
+  ::-webkit-scrollbar-track { background:var(--forest); }
+  ::-webkit-scrollbar-thumb { background:var(--moss); border-radius:10px; }
+
+  /* HOTEL BACKGROUND PHOTO */
+  /* ★ BACKGROUND — replace "hotel.jpg" below with your hotel photo filename */
+  #bg-photo {
+    position:fixed; inset:0; z-index:0; pointer-events:none;
+    background-image: url('hotel.jpg');
+    background-size:cover;
+    background-position:center;
+    background-repeat:no-repeat;
+    opacity:0.08;
+  }
+</style>
+</head>
+<body>
+<div id="bg-photo"></div>
+
+<!-- ===== NAVBAR ===== -->
+<nav id="navbar">
+  <a href="#hero" class="nav-logo">🌴 The Naran Farm</a>
+  <ul class="nav-links">
+    <li><a href="#services">Services</a></li>
+    <li><a href="#amenities">Amenities</a></li>
+    <li><a href="#restaurant">Restaurant</a></li>
+    <li><a href="#location">Location</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <a href="#contact" class="nav-cta">Book Now</a>
+</nav>
+
+<!-- ===== HERO ===== -->
+<section id="hero">
+  <div class="leaf-bg" aria-hidden="true">
+    <span class="leaf" style="left:8%;animation-duration:14s;animation-delay:0s;font-size:1.2rem;">🍃</span>
+    <span class="leaf" style="left:22%;animation-duration:18s;animation-delay:3s;font-size:0.9rem;">🌿</span>
+    <span class="leaf" style="left:38%;animation-duration:12s;animation-delay:1.5s;font-size:1.4rem;">🍃</span>
+    <span class="leaf" style="left:55%;animation-duration:16s;animation-delay:5s;font-size:1rem;">🌱</span>
+    <span class="leaf" style="left:70%;animation-duration:20s;animation-delay:2s;font-size:1.3rem;">🍃</span>
+    <span class="leaf" style="left:85%;animation-duration:13s;animation-delay:7s;font-size:0.8rem;">🌿</span>
+    <span class="leaf" style="left:92%;animation-duration:17s;animation-delay:4s;font-size:1.1rem;">🍃</span>
+    <span class="leaf" style="left:48%;animation-duration:22s;animation-delay:9s;font-size:1.5rem;">🌾</span>
+  </div>
+
+  <div class="hero-badge">🌾 Nani Daman's Premier Farm Stay</div>
+  <h1 class="hero-title">The <em>Naran</em><br>Farm</h1>
+
+  <div class="hero-divider">
+    <span class="hero-divider-line"></span>
+    <span>🌱</span>
+    <span class="hero-divider-line r"></span>
+  </div>
+
+  <p class="hero-sub">Escape into nature. Lush greenery, private pool, homemade meals and unforgettable celebrations — nestled in the heart of Nani Daman.</p>
+
+  <div class="hero-btns">
+    <a href="#services" class="btn-glass ripple-container">Explore</a>
+    <a href="tel:9375955644" class="btn-green">📞 Call Us Now</a>
+  </div>
+</section>
+
+<!-- ===== PHOTO STRIP ===== -->
+<div class="photo-strip reveal">
+
+  <!-- ★ HOTEL IMAGE — replace "hotel.jpg" with your hotel photo filename -->
+  <div class="photo-card">
+    <img src="hotel.jpg" alt="The Naran Farm Property">
+    <span class="photo-label">The Property</span>
+  </div>
+
+  <!-- ★ POOL IMAGE — replace "pool.jpg" with your pool photo filename -->
+  <div class="photo-card">
+    <img src="pool.jpg" alt="Swimming Pool">
+    <span class="photo-label">Swimming Pool</span>
+  </div>
+
+</div>
+
+<!-- ===== AMENITIES ===== -->
+<div class="amenities-row reveal" id="amenities">
+  <div class="amenity-pill"><span>❄️</span> AC Rooms</div>
+  <div class="amenity-pill"><span>🏊</span> Swimming Pool</div>
+  <div class="amenity-pill"><span>🍽️</span> Homemade Food</div>
+  <div class="amenity-pill"><span>🎉</span> Private Events</div>
+  <div class="amenity-pill"><span>🌿</span> Farm Experience</div>
+  <div class="amenity-pill"><span>🏡</span> Villa Booking</div>
+  <div class="amenity-pill"><span>🎂</span> Birthday Parties</div>
+  <div class="amenity-pill"><span>💍</span> Anniversary Packages</div>
+</div>
+
+<!-- ===== SERVICES ===== -->
+<section class="section-wrap reveal" id="services">
+  <div class="section-eyebrow">What We Offer</div>
+  <h2 class="section-title">Celebrate Every<br><em>Special Moment</em></h2>
+  <p class="section-sub">From intimate birthday evenings to full villa getaways — every experience is crafted with love and nature at its heart.</p>
+  <div class="cards-grid">
+    <div class="glass-card ripple-container">
+      <span class="card-icon">🎂</span>
+      <div class="card-title">Birthday Parties</div>
+      <div class="card-body">Make every birthday unforgettable. Themed setups, poolside celebrations, custom menus and a warm farm atmosphere to create memories that last a lifetime.</div>
+    </div>
+    <div class="glass-card ripple-container">
+      <span class="card-icon">💍</span>
+      <div class="card-title">Anniversary Celebrations</div>
+      <div class="card-body">Rekindle the romance surrounded by nature. Candlelit dinners, private pool access and personalised décor — because every year together deserves magic.</div>
+    </div>
+    <div class="glass-card ripple-container">
+      <span class="card-icon">🏡</span>
+      <div class="card-title">Private Villa Booking</div>
+      <div class="card-body">Book the entire villa exclusively for your group. Ideal for family getaways, friend trips or corporate retreats. Complete privacy with all amenities included.</div>
+    </div>
+    <div class="glass-card ripple-container">
+      <span class="card-icon">🌾</span>
+      <div class="card-title">Destination Stays</div>
+      <div class="card-body">Surrounded by lush greenery in Nani Daman, The Naran Farm is the perfect escape from city life — peaceful, refreshing and genuinely one of a kind.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== RESTAURANT ===== -->
+<section class="section-wrap reveal" id="restaurant" style="background:rgba(26,74,46,0.1);">
+  <div class="section-eyebrow">Our Restaurant</div>
+  <h2 class="section-title">Taste of <em>Home</em></h2>
+  <p class="section-sub">Every meal at The Naran Farm is prepared with the warmth and care of a home kitchen — fresh, nourishing and full of flavour.</p>
+  <div class="cards-grid" style="grid-template-columns:1fr 1fr;">
+    <div class="glass-card ripple-container">
+      <span class="card-icon">🍛</span>
+      <div class="card-title">Authentic Morning Meals</div>
+      <div class="card-body">Start your day with delicious homemade breakfasts prepared fresh every morning warm, comforting, and full of traditional flavours.</div>
+    </div>
+    <div class="glass-card ripple-container">
+      <span class="card-icon">🥘</span>
+      <div class="card-title">Customised Catering</div>
+      <div class="card-body">Planning a celebration? Our in-house kitchen prepares custom menus — snacks, starters, full-course meals and traditional thalis, all freshly made for your event.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FOOD MENU BUTTON ===== -->
+<div class="menu-section reveal">
+  <div class="section-eyebrow" style="justify-content:center;">Our Menu</div>
+  <h2 class="section-title">Curious About Our <em>Menu?</em></h2>
+  <p style="color:var(--text-muted);margin-top:8px;">Explore our farm-fresh dishes crafted daily</p>
+  <button class="menu-btn ripple-container" onclick="openMenu()">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+    View Food Menu
+  </button>
+</div>
+
+<!-- ===== FOOD MENU MODAL ===== -->
+<div class="modal-overlay" id="menuModal" onclick="closeMenuOutside(event)">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeMenu()">✕</button>
+    <div class="modal-title">🍽️ Our Food Menu</div>
+    <!-- ★ MENU PAGE 1 — replace "menu_page1.jpg" with your image filename -->
+    <img src="menu_page1.jpg" alt="Food Menu Page 1" style="width:100%;border-radius:14px;display:block;margin-bottom:14px;">
+    <!-- ★ MENU PAGE 2 — replace "menu_page2.jpg" with your image filename -->
+    <img src="menu_page2.jpg" alt="Food Menu Page 2" style="width:100%;border-radius:14px;display:block;">
+    <p style="text-align:center;margin-top:16px;font-size:0.8rem;color:var(--text-muted);">✦ Custom requests welcome! Call us to confirm.</p>
+  </div>
+</div>
+
+<!-- ===== MAP ===== -->
+<section class="map-section reveal" id="location">
+  <div class="section-eyebrow">Find Us</div>
+  <h2 class="section-title">Our <em>Location</em></h2>
+  <p class="section-sub" style="margin-bottom:32px;">Nestled in Devka Colony, Nani Daman — close to the beach, away from the noise.</p>
+  <div class="map-frame">
+    <iframe
+      src="https://maps.google.com/maps?q=The+Naran+Farm+Stay+Devka+Colony+Nani+Daman&output=embed&z=15"
+      allowfullscreen loading="lazy"
+      referrerpolicy="no-referrer-when-downgrade">
+    </iframe>
+  </div>
+  <div style="margin-top:22px;text-align:center;">
+    <a href="https://maps.app.goo.gl/E7gjd3MQnM4frphw6" target="_blank" class="btn-glass ripple-container" style="display:inline-flex;align-items:center;gap:10px;">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      Open in Google Maps
+    </a>
+  </div>
+</section>
+
+<!-- ===== CONTACT ===== -->
+<section id="contact" class="reveal">
+  <div class="section-eyebrow">Get In Touch</div>
+  <h2 class="section-title">Contact <em>Us</em></h2>
+  <p class="section-sub">We're here to help you plan the perfect stay. Call, WhatsApp or just drop by!</p>
+  <div class="contact-grid">
+    <div class="contact-info">
+      <div class="contact-row">
+        <div class="contact-icon">📍</div>
+        <div>
+          <div class="contact-label">Address</div>
+          <div class="contact-detail">The Naran Farm Stay,<br>Devka Colony, Behind Hotel Summer House,<br>Opposite Hotel Leveno, Devka Colony,<br>Nani Daman – 396210</div>
+        </div>
+      </div>
+      <div class="contact-row">
+        <div class="contact-icon">🕐</div>
+        <div>
+          <div class="contact-label">Check-in / Check-out</div>
+          <div class="contact-detail">Check-in: 12:00 PM onwards<br>Check-out: 11:00 AM</div>
+        </div>
+      </div>
+      <div class="contact-row">
+        <div class="contact-icon">🌊</div>
+        <div>
+          <div class="contact-label">Nearby</div>
+          <div class="contact-detail">Nani Daman, Daman and Diu<br>Close to Devka Beach</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="phone-box">
+      <div class="phone-title">📞 Call Us to Book</div>
+      <a href="tel:9375955644" class="phone-number ripple-container">
+        <span class="phone-dot"></span>+91 93759 55644
+      </a>
+      <a href="tel:9662543929" class="phone-number ripple-container">
+        <span class="phone-dot"></span>+91 96625 43929
+      </a>
+      <a href="tel:9904399228" class="phone-number ripple-container">
+        <span class="phone-dot"></span>+91 99043 99228
+      </a>
+      <p style="font-size:0.82rem;color:var(--text-muted);text-align:center;line-height:1.6;">Available 9 AM – 9 PM daily.<br>Bookings via call or WhatsApp welcome.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer>
+  <div class="footer-logo">🌿 The Naran Farm</div>
+  <div class="footer-links">
+    <a href="#services">Services</a>
+    <a href="#amenities">Amenities</a>
+    <a href="#restaurant">Restaurant</a>
+    <a href="#location">Location</a>
+    <a href="#contact">Contact</a>
+  </div>
+  <div class="footer-copy">© 2026 The Naran Farm Stay, Nani Daman.</div>
+</footer>
+
+<script>
+/* ===== HIDE-ON-SCROLL NAVBAR ===== */
+let lastScrollY = 0;
+const navbar = document.getElementById('navbar');
+
+window.addEventListener('scroll', () => {
+  const currentY = window.scrollY;
+  if (currentY > lastScrollY && currentY > 80) {
+    navbar.classList.add('hidden');
+  } else {
+    navbar.classList.remove('hidden');
+  }
+  if (currentY > 50) {
+    navbar.classList.add('scrolled');
+  } else {
+    navbar.classList.remove('scrolled');
+  }
+  lastScrollY = currentY;
+}, { passive: true });
+
+/* ===== MENU MODAL ===== */
+function openMenu() {
+  document.getElementById('menuModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeMenu() {
+  document.getElementById('menuModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+function closeMenuOutside(e) {
+  if (e.target === document.getElementById('menuModal')) closeMenu();
+}
+
+/* ===== SCROLL REVEAL ===== */
+const reveals = document.querySelectorAll('.reveal');
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach((e, i) => {
+    if (e.isIntersecting) {
+      setTimeout(() => e.target.classList.add('visible'), i * 90);
+      revealObserver.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.08 });
+reveals.forEach(r => revealObserver.observe(r));
+
+/* ===== GLASS CARD MOUSE GLOW ===== */
+document.querySelectorAll('.glass-card').forEach(card => {
+  card.addEventListener('mousemove', e => {
+    const rect = card.getBoundingClientRect();
+    card.style.setProperty('--mx', ((e.clientX - rect.left) / rect.width * 100) + '%');
+    card.style.setProperty('--my', ((e.clientY - rect.top) / rect.height * 100) + '%');
+  });
+});
+
+/* ===== BTN GLASS GLOW ===== */
+document.querySelectorAll('.btn-glass').forEach(btn => {
+  btn.addEventListener('mousemove', e => {
+    const rect = btn.getBoundingClientRect();
+    btn.style.setProperty('--mx', ((e.clientX - rect.left) / rect.width * 100) + '%');
+    btn.style.setProperty('--my', ((e.clientY - rect.top) / rect.height * 100) + '%');
+  });
+});
+
+/* ===== RIPPLE ON CLICK ===== */
+document.querySelectorAll('.ripple-container').forEach(el => {
+  el.addEventListener('click', e => {
+    const r = document.createElement('span');
+    r.classList.add('ripple');
+    const rect = el.getBoundingClientRect();
+    r.style.left = (e.clientX - rect.left - 5) + 'px';
+    r.style.top  = (e.clientY - rect.top - 5) + 'px';
+    el.appendChild(r);
+    setTimeout(() => r.remove(), 700);
+  });
+});
+</script>
+</body>
+</html>
